@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,40 +8,31 @@ public class Enemy : MonoBehaviour
 
     Player target;
     EnemyMovement enemyMovement;
-    EnemySpatialGroups enemySpatialGroups;
+    Grid enemySpatialGroups;
     bool isReady = false;
     Vector2Int gridPosition;
-
+    Action<Enemy> onMoveAction;
     public HP HP { get; private set; }
 
 
-    public void Init(Player player, float speed)
+    public void Init(Player player, float speed, Action<Enemy> onMove)
     {
         enemyMovement = new(this.transform, player.transform, speed);
         isReady = true;
         target = player;
-        HP = new HP(100);
-
-        this.enemySpatialGroups = EnemySpatialGroups.instance;
-        gridPosition = enemySpatialGroups.GetGridIndex(this.transform.position);
-        enemySpatialGroups.AddEnemy(gridPosition, this);
+        this.onMoveAction = onMove;
+        HP = new HP(5);
     }
 
 
-    private void FixedUpdate()
+    public void UpdateEnemey()
     {
         if (!isReady)
             return;
 
         var movementType = enemyMovement.TryMove();
 
-        var newPos = enemySpatialGroups.GetGridIndex(this.transform.position);
-        if (newPos != gridPosition)
-        {
-            enemySpatialGroups.RemoveEnemy(gridPosition, this);
-            gridPosition = newPos;
-            enemySpatialGroups.AddEnemy(gridPosition, this);
-        }
+        onMoveAction(this);
 
         if (movementType == EnemyMovement.MovementType.Arrive)
         {
@@ -53,6 +45,10 @@ public class Enemy : MonoBehaviour
         target.HP.TakeDamage(10);
     }
 
+    public void DestroyEnemy()
+    {
+        Destroy(gameObject);
+    }
 
 
 

@@ -12,7 +12,7 @@ public class EnemyMovement
 	float speed;
 
 
-	public EnemyMovement(Transform self, Transform player, float speed = 0.05f)
+	public EnemyMovement(Transform self, Transform player, float speed = 1)
 	{
 		this.self = self;
 		this.player = player;
@@ -24,7 +24,7 @@ public class EnemyMovement
 	{
 		if (Vector3.Distance(self.position, player.position) > .5f)
 		{
-			self.position = Vector3.MoveTowards(self.position, player.position, speed);
+			self.position = Vector3.MoveTowards(self.position, player.position, speed * Time.deltaTime);
 			return MovementType.FollowPlayer;
 		}
 		else

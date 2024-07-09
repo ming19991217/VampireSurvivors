@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -6,28 +7,23 @@ public class Player : MonoBehaviour
 	public HP HP { get; private set; }
 
 	PlayerController_2D playerController;
-	Weapon weapon;
-	[SerializeField]
-	Bullet bulletPrefab;
+
+	bool isReady = false;
 
 
-	private void Awake()
-	{
-		Init();
-	}
-
-	void Init()
+	public void Init()
 	{
 		playerController = new();
 		playerController.Init(this.transform);
 		HP = new HP(100);
-		weapon = new Weapon(bulletPrefab);
+		isReady = true;
 	}
 
 	private void FixedUpdate()
 	{
+		if (!isReady)
+			return;
 		playerController.UpdateMove();
-		weapon.Attack();
 	}
 
 }
