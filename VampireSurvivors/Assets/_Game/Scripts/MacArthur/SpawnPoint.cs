@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -8,43 +9,30 @@ namespace MacArthur
     public class SpawnPoint : MonoBehaviour
     {
         [SerializeField]
-        Enemy enemyPrefab;
-        List<Enemy> enemies = new List<Enemy>();
-
-        [SerializeField]
-        Transform target;
+        EnemyView enemyPrefab;
+        List<EnemyView> enemies = new List<EnemyView>();
 
         float lastSpawnTime;
         const float SPAWN_INTERVAL = 1.0f;
-        bool waitCombatFinish = false;
+        public const float MAX_ENEMY_COUNT = 5;
 
+        Action<SpawnPoint, EnemyView> onSpawn;
+        Func<int> getEnemyCount;
 
-        void FixedUpdate()
+        public void Init(Action<SpawnPoint, EnemyView> onSpawn, Func<int> getEnemyCount)
         {
-            if (waitCombatFinish)
-            {
-                if (enemies.Count == 0)
-                    waitCombatFinish = false;
+            this.onSpawn = onSpawn;
+            this.getEnemyCount = getEnemyCount;
+        }
 
+
+        public void SpawnUpdateTask()
+        {
+            if (getEnemyCount() > MAX_ENEMY_COUNT)
                 return;
-            }
 
-
-            if (enemies.Count < 5)
-            {
-                SpawnEnemy();
-            }
-            else
-            {
-                GoToFighting();
-                waitCombatFinish = true;
-            }
+            SpawnEnemy();
         }
-        void GoToFighting()
-        {
-            enemies.ForEach(e => e.SetDestination(target.position));
-        }
-
 
         void SpawnEnemy()
         {
@@ -54,10 +42,11 @@ namespace MacArthur
             lastSpawnTime = Time.time;
             var enemy = Instantiate(enemyPrefab, RandomPosition(transform.position), Quaternion.identity, transform);
             enemies.Add(enemy);
+            onSpawn(this, enemy);
 
             Vector3 RandomPosition(Vector3 center)
             {
-                return center + new Vector3(Random.Range(-5, 5), 0, Random.Range(-5, 5));
+                return center + new Vector3(UnityEngine.Random.Range(-5, 5), 0, UnityEngine.Random.Range(-5, 5));
             }
         }
 
