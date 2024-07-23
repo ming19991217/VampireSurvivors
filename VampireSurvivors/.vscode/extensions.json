@@ -1,6 +1,3 @@
 {
-  "recommendations": [
-    "visualstudiotoolsforunity.vstuc",
-    "asvetliakov.vscode-neovim"
-  ]
+  "recommendations": ["visualstudiotoolsforunity.vstuc"]
 }
